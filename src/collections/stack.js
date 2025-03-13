@@ -26,7 +26,7 @@ var Stack = ( function() {
     }
 
     /** @type {WeakMap<Stack, DefaultLinkedList>} */
-    const privateLists = WeakMap();
+    const privateLists = new WeakMap();
 
     const Stack = class Stack {
         constructor(...values) {

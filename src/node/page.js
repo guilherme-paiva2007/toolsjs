@@ -70,8 +70,9 @@ var Page = ( function() {
             const parsedLocation = path.parse(pagelocation);
 
             if (!contentType) contentType = defaultContentTypesForEXT[parsedLocation.ext];
-            if (!contentTypes.includes(contentType)) throw new TypeError("Content type must be a valid MIME type");
+            if (!contentTypes.includes(contentType)) contentType = "text/plain";
 
+            pagelocation = pagelocation.replaceAll("\\", "/");
             if (!pagelocation.startsWith("/")) pagelocation = "/" + pagelocation;
 
             if (!fs.existsSync(filelocation)) {
@@ -217,9 +218,92 @@ var Page = ( function() {
             }
         }
 
-        static LoadList() {}
+        static LoadList(array, collection, pathCorrection) {
+            if (!(array instanceof Array)) throw new TypeError("Page.List only work with an array");
+            if (!(collection instanceof Page.Collection)) throw new TypeError("Page.List only work with a Page Collection");
+            if (typeof pathCorrection !== "string") throw new TypeError("Path correction must be a string");
 
-        static MapDir() {}
+            const pages = [];
+
+            let index = 0;
+            for (const pageobj of array) {
+                let constructor;
+                let urltype = (pageobj.urltype ?? "default").toLowerCase();
+                switch (urltype) {
+                    case "special":
+                    case "params":
+                        constructor = Page.Special;
+                        break;
+                    case "default":
+                    case "simple":
+                    case "page":
+                    case "commom":
+                    default:
+                        constructor = Page;
+                        break;
+                }
+                let filelocation = pageobj.filelocation;
+                if (typeof filelocation !== "string") { console.error(`Page.List of index ${index} is missing correct filelocation`); continue; }
+                let pagelocation = pageobj.pagelocation;
+                if (typeof pagelocation !== "string" && !(pagelocation instanceof Array)) { console.error(`Page.List of index ${index} is missing correct pagelocation`); continue; }
+                pagelocation = typeof pagelocation === "string" ? [ pagelocation ] : pagelocation;
+                let pagetype = pageobj.pagetype ?? "hypertext";
+                let contenttype = pageobj.contenttype;
+                let statuscode = pageobj.statuscode;
+
+                let flags = [];
+                const pageobjflags = pageobj.flags ? pageobj.flags.filter(fl => typeof fl === "string" ? true : false).map(fl => fl.toLowerCase()) : [];
+                for (const [ flagName, flag ] of Object.entries(Page.Flags)) {
+                    if (pageobjflags.includes(flagName.toLowerCase())) flags.push(flag);
+                }
+
+                pagelocation.forEach(pl => {
+                    pages.push(new constructor(
+                        path.join(pathCorrection, filelocation),
+                        pl,
+                        pagetype,
+                        contenttype,
+                        { statuscode, flags }
+                    ));
+                });
+                index++;
+            }
+
+            collection.append(...pages);
+        }
+
+        static MapDir(dirpath, pathbase = "/", collection) {
+            if (!(collection instanceof Page.Collection)) throw new TypeError("Collection needs to be a PageCollection instance");
+            if (!fs.existsSync(dirpath)) {
+                console.error(new Error(`No directory available in ${dirpath}`));
+                return;
+            }
+            
+            const dirStat = fs.statSync(dirpath);
+            if (!dirStat.isDirectory()) {
+                console.error(new Error(`Path ${dirpath} is not a directory`));
+                return;
+            }
+
+            const files = fs.readdirSync(dirpath);
+
+            const pages = [];
+
+            for (const readingName of files) {
+                const readingPath = path.join(dirpath, readingName);
+                const readingStat = fs.statSync(readingPath);
+                const pathbaseExtend = path.join(pathbase, readingName);
+
+                if (readingStat.isFile()) {
+                    pages.push(new Page(readingPath, pathbaseExtend, "hypertext"));
+                }
+                if (readingStat.isDirectory()) {
+                    Page.MapDir(readingPath, pathbaseExtend, collection);
+                }
+            }
+
+            collection.append(...pages);
+        }
 
         static Content = class PageContent {
             constructor() {}
@@ -228,7 +312,7 @@ var Page = ( function() {
             before = [];
             after = [];
 
-            append(chunk, area) {
+            append(chunk, area = "body") {
                 if (!validChunk(chunk)) throw new TypeError("Chunk must be a string or a buffer");
                 switch (area) {
                     case "body":
