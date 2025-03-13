@@ -1,5 +1,5 @@
-import http from "http"
-import ws from "ws"
+import http, { IncomingMessage } from "http"
+import WebSocket, { WebSocketServer } from "ws"
 import net from "net"
 import Page from "./page"
 
@@ -9,35 +9,19 @@ declare class APIManager {
     add(api: object)
 }
 
-declare class ServerManager {
-    constructor(requestListener: http.RequestListener<Request, Response>)
-    constructor(options?: http.ServerOptions, requestListener: http.RequestListener<Request, Response>)
+declare class ServerManager<Req = typeof http.IncomingMessage, Res = typeof http.ServerResponse> extends http.Server<Req, Res> {
+    constructor()
 
-    readonly server: http.Server<Request, Response>
-    readonly websocket: ws.Server
+    readonly websocket: WebSocketServer
     readonly pages: Page.Collection
     readonly sessions: unknown
     APIObjects: object
 
-    port: number
-    hostname: string
+    setAPI(name: string, api: object): void
 
-    /**
-     * Inicia a conexão na porta, ouvindo por requisições HTTP.
-     * @param port 
-     * @param hostname 
-     * @param backlog 
-     * @param listeningListener 
-     */
-    listen(port?: number, hostname?: string, backlog?: number, listeningListener?: () => void): this;
-    listen(port?: number, hostname?: string, listeningListener?: () => void): this;
-    listen(port?: number, backlog?: number, listeningListener?: () => void): this;
-    listen(port?: number, listeningListener?: () => void): this;
-    listen(path: string, backlog?: number, listeningListener?: () => void): this;
-    listen(path: string, listeningListener?: () => void): this;
-    listen(options: ListenOptions, listeningListener?: () => void): this;
-    listen(handle: any, backlog?: number, listeningListener?: () => void): this;
-    listen(handle: any, listeningListener?: () => void): this;
+    openPageDir(): void
+
+    openPageList(): void
 }
 
 export = ServerManager

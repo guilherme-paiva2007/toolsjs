@@ -1,20 +1,22 @@
-import { ServerResponse } from "http"
+import { ServerResponse, IncomingMessage, Server } from "http"
+import ServerManager from "./server"
+import Session from "./session"
 
 type ContentType = "text/html"|"text/plain"|"text/css"|"text/javascript"|"application/json"|"application/xml"|"application/octet-stream"|"image/png"|"image/jpeg"|"image/svg+xml"|"image/gif"|"image/webp"|"image/x-icon"|"image/vnd.microsoft.icon"|"image/vnd.wap.wbmp"|"image/bmp"|"image/tiff"|"image/x-xbitmap"|"image/vnd.djvu"|"image/x-portable-pixmap"|"image/x-portable-anymap"|"image/x-portable-bitmap"|"image/x-portable-graymap"
 type PageType = "hypertext"|"execute"
 type URLType = "simple"|"special"
 
 interface PageLoadParameters {
-    query?: Object
-    body?: Object
-    params?: Object
+    query?: object
+    body?: object
+    params?: object
     session?: Session
-    server?: Server
+    server: ServerManager
     content: PageContent
-    page?: Page
-    request?: IncomingMessage
-    response?: ServerResponse
-    apis?: Object
+    page: Page
+    request: IncomingMessage
+    response: ServerResponse
+    apis?: object
 }
 
 interface PageListObject {
@@ -37,6 +39,13 @@ interface PageBasicOptions {
      * Lista de Flags da página.
      */
     flags?: symbol[]
+}
+
+declare type Flags = {
+    /** Envia um objeto `QUERY` em um `<script>` para o documento HTML utilizá-lo. */
+    HTMLClientQuery: symbol,
+    /** Envia um objeto `PARAMS` em um `<script>` para o documento HTML utilizá-lo. Requer uma `SpecialPage`. */
+    HTMLClientParams: symbol
 }
 
 /**
@@ -64,20 +73,15 @@ declare class Page {
      * Carrega o conteúdo da página de acordo com o que foi definido em `pagetype`.
      * @param parameters Parâmetros fornecidos para execução. Páginas de hipertexto necessitam de um `PageContent`.
      */
-    async load(parameters: PageLoadParameters): Promise<any>
+    load(parameters: PageLoadParameters): Promise<any>
 
     /**
      * Testa se um caminho de URL bate com a localização da página.
      * @param url 
      */
-    match(url: string): boolean
+    match(url: string): boolean | object
 
-    static readonly Flags = {
-        /** Envia um objeto `QUERY` em um `<script>` para o documento HTML utilizá-lo. */
-        HTMLClientQuery: Symbol("PageFlags.HTMLClientQuery"),
-        /** Envia um objeto `PARAMS` em um `<script>` para o documento HTML utilizá-lo. Requer uma `SpecialPage`. */
-        HTMLClientParams: Symbol("PageFlags.HTMLClientParams")
-    }
+    static readonly Flags: Flags
 }
 
 declare class SpecialPage extends Page {
@@ -92,7 +96,7 @@ declare class SpecialPage extends Page {
      */
     constructor(filelocation: string, pagelocation: string, pagetype: PageType, contenttype: ContentType, options?: PageBasicOptions)
 
-    private pathRegExp: RegExp
+    pathRegExp: RegExp
     paramNames: string[]
 
     /**
@@ -106,16 +110,16 @@ declare class SpecialPage extends Page {
 declare class PageContent {
     constructor()
 
-    body: (string|Buffer|Uint8Array)[] // mudar pra typedarray
-    before: (string|Buffer|Uint8Array)[]
-    after: (string|Buffer|Uint8Array)[]
+    body: (string|Buffer)[] // mudar pra typedarray
+    before: (string|Buffer)[]
+    after: (string|Buffer)[]
 
     /**
      * Adiciona um novo fragmento de conteúdo ao conjunto.
      * @param chunk 
      * @param area Área onde será adicionado.
      */
-    append(chunk: (string|Buffer|Uint8Array), area: "body"|"before"|"after"): void
+    append(chunk: (string|Buffer), area: "body"|"before"|"after"): void
     /**
      * Escreve todo o conteúdo e o envia para o cliente.
      * @param response 
@@ -125,15 +129,15 @@ declare class PageContent {
      * Limpa todo o conteúdo presente.
      * @param areas Áreas que serão limpas. Vazio para limpar todas.
      */
-    clear(...areas?: ("body"|"before"|"after")[]): void
+    clear(...areas: ("body"|"before"|"after")[]): void
 }
 
 declare class PageCollection {
     constructor(...pages: Page[])
 
-    private protected allPages: Map // Substituir para TypedMap e TypedSet
-    private protected commomPages: Map
-    private protected specialPages: Set
+    private allPages: Map<string, Page> // Substituir para TypedMap e TypedSet
+    private commomPages: Map<string, Page>
+    private specialPages: Set<SpecialPage>
 
     /**
      * Insere novas páginas na coleção.
@@ -157,18 +161,17 @@ declare class PageCollection {
 
     get length(): number
 
-    *values(): MapIterator<Page>
-    *keys(): MapIterator<string>
-    *entries(): MapIterator<[string, Page]>
+    values(): MapIterator<Page>
+    keys(): MapIterator<string>
+    entries(): MapIterator<[string, Page]>
 }
 
-namespace Page {
+declare namespace Page {
     export { PageCollection as Collection }
     export { SpecialPage as Special }
     export { PageContent as Content }
 
     export { PageBasicOptions }
-    export { PageOptions }
     export { PageLoadParameters }
     export { PageListObject }
 
