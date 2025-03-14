@@ -3,7 +3,7 @@ import { TypedCollection, TypeList } from "./typed";
 /**
  * Coleção Map com tipagem controlada.
  */
-class TypedMap<K,V> extends Map<K,V> implements TypedCollection<V> {
+declare class TypedMap<K,V> extends Map<K,V> {
     /**
      * @param type Classe construtora que poderá ser armazenada no valor.
      * @param keytype Classe construtora que poderá ser armazenada na chave.
@@ -70,7 +70,7 @@ class TypedMap<K,V> extends Map<K,V> implements TypedCollection<V> {
      */
     checkType(value: any, type?: "key"|"value"): boolean
 
-    set(key: K, value: V): void;
+    set(key: K, value: V): this;
 }
 
 export = TypedMap;

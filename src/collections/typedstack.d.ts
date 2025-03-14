@@ -4,7 +4,7 @@ import { TypedCollection, TypeList } from "./typed";
 /**
  * Coleção Stack com tipagem controlada.
  */
-class TypedStack<V> extends Stack<V> implements TypedCollection<V> {
+declare class TypedStack<V> extends Stack<V> {
     /**
      * @param type Classe construtora que poderá ser armazenada.
      * @param includeAllInstances Permite incluir instâncias que herdem a classe.

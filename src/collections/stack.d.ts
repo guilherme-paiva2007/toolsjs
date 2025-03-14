@@ -1,7 +1,7 @@
 /**
  * Coleção de pilha de valores.
  */
-class Stack<V> {
+declare class Stack<V> {
     /**
      * 
      * @param values Empilha estes valores junto da instanciação.
@@ -27,8 +27,8 @@ class Stack<V> {
      */
     has(value: any): boolean
     
-    *values(): StackIterator<V>
-    *[Symbol.iterator](): StackIterator<V>
+    values(): StackIterator<V>
+    [Symbol.iterator](): StackIterator<V>
 
     /**
      * Retorna o elemento do topo da pilha.
@@ -37,6 +37,8 @@ class Stack<V> {
     get length(): number
 }
 
-private class StackArray<V> extends Array<V> {}
+interface StackIterator<T> extends Iterator<T> {}
+
+declare class StackArray<V> extends Array<V> {}
 
 export = Stack

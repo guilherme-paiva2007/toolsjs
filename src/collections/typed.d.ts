@@ -3,7 +3,7 @@
  */
 
 
-namespace Typed {
+declare namespace Typed {
     function checkType(value: any, type: Function|TypeList, includeAllInstances: boolean): boolean
 
     interface TypedCollection<T> {
@@ -19,9 +19,9 @@ namespace Typed {
     class TypeList {
         constructor(...types: Function[])
 
-        private #types: TypeListArray
+        private list: TypeListArray
 
-        *values(): ArrayIterator
+        values(): ArrayIterator<Function>
         get length(): number
         get name(): string
 
@@ -36,6 +36,6 @@ namespace Typed {
     function customNamedArray(name: string, suffix?: string): ArrayConstructor
 }
 
-private class TypeListArray extends Array {}
+declare class TypeListArray extends Array {}
 
 export = Typed

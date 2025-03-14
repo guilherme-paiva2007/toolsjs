@@ -3,7 +3,7 @@ import { TypedCollection, TypeList } from "./typed";
 /**
  * Array com tipagem controlada.
  */
-class TypedArray<V> extends Array<V> implements TypedCollection<V> {
+declare class TypedArray<V> extends Array<V> {
     /**
      * @param type Classe construtora que poderá ser armazenada.
      * @param includeAllInstances Permite incluir instâncias que herdem a classe.
@@ -28,8 +28,6 @@ class TypedArray<V> extends Array<V> implements TypedCollection<V> {
      * @param value 
      */
     checkType(value: any): boolean
-
-    static private #globalProxyHandlerSet(target: this, property: string|symbol, value: V): boolean
 }
 
 export = TypedArray

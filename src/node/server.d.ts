@@ -1,4 +1,4 @@
-import http, { IncomingMessage, ServerOptions } from "http"
+import http, { IncomingMessage, ServerOptions, ServerResponse } from "http"
 import WebSocket, { WebSocketServer } from "ws"
 import net from "net"
 import Page from "./page"
@@ -9,7 +9,7 @@ declare class APIManager {
     add(api: object)
 }
 
-declare class ServerManager<Req = typeof http.IncomingMessage, Res = typeof http.ServerResponse> extends http.Server<Req, Res> {
+declare class ServerManager<Req extends typeof IncomingMessage = typeof IncomingMessage, Res extends typeof ServerResponse = typeof ServerResponse> extends http.Server<Req, Res> {
 
     constructor(options?: ServerOptions)
 

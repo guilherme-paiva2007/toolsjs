@@ -3,9 +3,9 @@
  * @param object 
  * @param name 
  */
-function Namespace<OBJ>(object: OBJ, name: string): OBJ
+declare function Namespace<OBJ>(object: OBJ, name: string): OBJ
 
-namespace Namespace {
+declare namespace Namespace {
     /**
      * Verifica se um objeto é uma área de trabalho.
      * @param object 

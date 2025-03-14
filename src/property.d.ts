@@ -3,7 +3,7 @@ type Manipulator = "freeze"|"unfreeze"|"hide"|"show"|"lock"
 /**
  * Mapeia um objeto atrás de uma propriedade.
  */
-class Property<OBJ> {
+declare class Property<OBJ> {
     /**
      * @param object 
      * @param property 
@@ -14,8 +14,8 @@ class Property<OBJ> {
     object: OBJ
     property: string|symbol
 
-    get: (function(): T) | undefined
-    set: (function(T): void) | undefined
+    get: (() => any) | undefined
+    set: ((value: any) => void) | undefined
     value: any
     writable: boolean
     enumerable: boolean
@@ -50,9 +50,9 @@ class Property<OBJ> {
     static set(object: object, property: string|symbol, ...manipulators: Manipulator[]): void
 
     /** Resgata um valor selecionado a algum atributo de uma propriedade. */
-    static catch(object: object, property: string|symbol, search: "get"): (function(): T) | undefined
+    static catch(object: object, property: string|symbol, search: "get"): (() => any) | undefined
     /** Resgata um valor selecionado a algum atributo de uma propriedade. */
-    static catch(object: object, property: string|symbol, search: "set"): (function(T): void) | undefined
+    static catch(object: object, property: string|symbol, search: "set"): ((value: any) => void) | undefined
     /** Resgata um valor selecionado a algum atributo de uma propriedade. */
     static catch(object: object, property: string|symbol, search: "value"): any | undefined
     /** Resgata um valor selecionado a algum atributo de uma propriedade. */
@@ -63,9 +63,9 @@ class Property<OBJ> {
     static catch(object: object, property: string|symbol, search: "configurable"): boolean | undefined
 
     /** Atribui um valor selecionado a algum atributo de uma propriedade. */
-    static assign(object: object, property: string|symbol, attribute: "get", value: (function(): T)): void
+    static assign(object: object, property: string|symbol, attribute: "get", value: (() => any)): void
     /** Atribui um valor selecionado a algum atributo de uma propriedade. */
-    static assign(object: object, property: string|symbol, attribute: "set", value: (function(T): void)): void
+    static assign(object: object, property: string|symbol, attribute: "set", value: ((value: any) => void)): void
     /** Atribui um valor selecionado a algum atributo de uma propriedade. */
     static assign(object: object, property: string|symbol, attribute: "value", value: any): void
     /** Atribui um valor selecionado a algum atributo de uma propriedade. */
@@ -76,7 +76,7 @@ class Property<OBJ> {
     static assign(object: object, property: string|symbol, attribute: "configurable", value: boolean): void
 }
 
-namespace Property {
+declare namespace Property {
     
 }
 

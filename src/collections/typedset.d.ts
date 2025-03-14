@@ -3,7 +3,7 @@ import { TypedCollection, TypeList } from "./typed"
 /**
  * Coleção Set com tipagem controlada.
  */
-class TypedSet<V> extends Set<V> implements TypedCollection<V> {
+declare class TypedSet<V> extends Set<V> {
     /**
      * @param type Classe construtora que poderá ser armazenada.
      * @param includeAllInstances Permite incluir instâncias que herdem a classe.
@@ -29,7 +29,7 @@ class TypedSet<V> extends Set<V> implements TypedCollection<V> {
      */
     checkType(value: any): boolean
 
-    add(value: V): void
+    add(value: V): this
 }
 
 export = TypedSet

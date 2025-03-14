@@ -3,8 +3,8 @@
  * 
  * Sem suporte para elementos vazios.
  */
-class LinkedList<T = any> {
-    constructor(...values?: T[])
+declare class LinkedList<T = any> {
+    constructor(...values: T[])
 
     get first(): T
     get last(): T
@@ -110,14 +110,16 @@ class LinkedList<T = any> {
      * target.remove(index);
      * ```
      */
-    static readonly proxyHandler: ProxyHandler<T> = {
-        get(target: T, property: string|symbol): any {},
-        set(target: T, property: string|symbol, newValue: any): boolean {},
-        deleteProperty(target, p) {}
-    }
+    static proxyHandler: LinkedListProxyHandler
 }
 
-private class LinkedListNode {
+interface LinkedListProxyHandler extends ProxyHandler<LinkedList<any>> {
+    get(target: any, property: string|symbol): any,
+    set(target: any, property: string|symbol, newValue: any): boolean,
+    deleteProperty(target: any, property: string|symbol): boolean
+}
+
+declare class LinkedListNode {
     constructor(value: any, { next, last }: { next?: LinkedListNode, last?: LinkedListNode })
 
     value: any;
