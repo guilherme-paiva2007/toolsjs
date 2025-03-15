@@ -91,7 +91,7 @@ var ServerManager = ( function() {
         }
 
         pages = new Page.Collection();
-        // sessions = new Session.Collection("HTTP");
+        sessions = new Session.Collection("HTTP");
         APIObjects = {};
 
         setAPI(name, object) {

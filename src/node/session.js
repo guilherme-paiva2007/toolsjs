@@ -50,7 +50,8 @@ var Session = ( function() {
         toString() { return `[Session: ${this.id}]` }
 
         static Collection = class SessionCollection extends TypedMap {
-            constructor(name, { maxAge, cleaningInterval }) {
+            constructor(name, { maxAge, cleaningInterval } = { }) {
+                super(Session, String);
                 if (!validstr(name, "blockEmpty", "onlyAlphaNumeric"));
                 this.name = String(name);
 
@@ -110,6 +111,8 @@ var Session = ( function() {
             }
         }
     }
+
+    return Session;
 } )();
 
 module.exports = Session;
