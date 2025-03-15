@@ -1,53 +1,18 @@
-const { OptionError } = require("../errors");
+const Namespace = require("../namespace.js");
 
 /**
  * Identificador.
  */
-class ID {
-    /**
-     * Identificar único.
-     * @param {string} type 
-     * @param {{
-     *      description: string,
-     *      symbol: symbol
-     * }} configs 
-     */
-    constructor(type, configs = {}, ...params) {
-        if (!ID.#types.includes(type)) throw new OptionError("tipo de ID inexistente");
-        if (configs !== undefined) {
-            if (typeof configs !== "object" || configs === null) throw new TypeError("configurações precisam estar em um objeto");
-            typeof configs.description == "string" ? this.#description = configs.description : this.#description = "";
-            typeof configs.symbol == "symbol" ? this.#symbol = configs.symbol : this.#symbol = Symbol();
-        } else {
-            this.#symbol = Symbol();
-            this.#description = "";
-        }
-
-        this.#id = ID[type](...params)
-    }
-
-    #id;
-    #symbol;
-    #description;
-
-    get id() {
-        return this.#id;
-    }
-
-    get symbol() {
-        return this.#symbol;
-    }
-
-    get description() {
-        return this.#description;
-    }
+var ID = (function() {
+    const ID = {};
+    Namespace(ID, "ID");
 
     /**
      * Cria um ID de string baseado em data.
      * @param {Date} date 
      * @returns {string}
      */
-    static date(date, mainjoin = "-", subjoin = ".") {
+    ID.date = function date(date, mainjoin = "-", subjoin = ".") {
         if (typeof mainjoin !== "string") mainjoin = "-";
         if (typeof subjoin !== "string") subjoin = ".";
         if (!(date instanceof Date)) date = new Date(date);
@@ -72,13 +37,7 @@ class ID {
         ].map(subarr => subarr.join(subjoin)).join(mainjoin);
     }
 
-    toString() {
-        return this.id;
-    }
-
-    static #types = [
-        this.date.name
-    ];
-}
+    return ID;
+})();
 
 module.exports = ID;
