@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Param via URL</title>
+    </head>
+    <body>
+        <p><b>Current URL path: </b><span id="currentURL"></span></p>
+        <p><b>URL model: </b><span id="URLmodel"></span></p>
+        <table>
+            <caption>Params</caption>
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody id="paramstable">
+            </tbody>
+        </table>
+        <script>
+            const paramstable = document.getElementById("paramstable");
+            
+            document.getElementById("currentURL").innerHTML = location.pathname;
+
+            if (window.PARAMS) {
+                for (const [ key, value ] of Object.entries(window.PARAMS)) {
+                    const tr = document.createElement("tr");
+                    const tdkey = document.createElement("td");
+                    const tdvalue = document.createElement("td");
+
+                    tdkey.innerHTML = key;
+                    tdvalue.innerHTML = value;
+
+                    tr.append(tdkey, tdvalue);
+                    paramstable.append(tr);
+                }
+            }
+
+            if (window.PAGE) {
+                document.getElementById("URLmodel").innerHTML = window.PAGE.path;
+            }
+        </script>
+        <style>
+            table, tbody, thead {
+                border: 2px solid black;
+                border-collapse: collapse;
+            }
+            tr, td, th {
+                border: 1px solid black;
+            }
+        </style>
+    </body>
+</html>

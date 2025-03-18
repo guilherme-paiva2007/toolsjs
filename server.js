@@ -47,6 +47,25 @@ server.openPageList([
                 localhooks.abc = 123;
             }
         }
+    },
+    {
+        filelocation: "/special.html",
+        pagelocation: "param/[um]/[2]/[treees]",
+        urltype: "special",
+        flags: [ "HTMLClientParams" ],
+        events: {
+            before({ page, content }) {
+                content.append(`<script>`);
+                content.append(`window.PAGE = ${JSON.stringify(page)}`);
+                content.append(`</script>`);
+            }
+        }
+    },
+    {
+        filelocation: "/pages.js",
+        pagelocation: "get/pages",
+        pagetype: "execute",
+        contenttype: "application/json"
     }
 ], path.join(__dirname, "pages"));
 
@@ -60,4 +79,8 @@ server.on("listening", () => {
 const wss = server.openWebSocket();
 wss.on("listening", () => {
     console.log(`WebSocket Server listening at ${config.port}`);
+});
+
+wss.on("connection", socket => {
+    socket.on("message", message => console.log("Message from WebSocket client:", message.toString("utf-8")))
 });

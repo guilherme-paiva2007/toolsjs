@@ -222,10 +222,10 @@ var Page = ( function() {
         }
 
         static Special = class SpecialPage extends Page {
-            constructor(filelocation, pagelocation, pageType, contentType, { statusCode, flags } = {}) {
-                super(filelocation, pagelocation, pageType, contentType, { statusCode, flags });
+            constructor(filelocation, pagelocation, pageType, contentType, { statusCode, flags, events } = {}) {
+                super(filelocation, pagelocation, pageType, contentType, { statusCode, flags, events });
 
-                let pathRegExpMiddle = this.pagelocation.replace(paramRegExp, "([^/]+)");
+                let pathRegExpMiddle = this.path.replace(paramRegExp, "([^/]+)");
                 if (pathRegExpMiddle.endsWith("/")) pathRegExpMiddle += "?"; else pathRegExpMiddle += "/?";
 
                 this.pathRegExp = new RegExp("^" + pathRegExpMiddle + "$");
