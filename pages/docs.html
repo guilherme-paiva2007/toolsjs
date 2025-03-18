@@ -15,16 +15,181 @@
 
             </aside>
             <section id="content">
-                <h1>A</h1>
-                <h2>A1</h2>
-                <h2>A2</h2>
-                <h2>A3</h2>
-                <h1>B</h1>
-                <h2>B1</h2>
-                <h2>B2</h2>
-                <h3>B2a</h3>
-                <h3>B2b</h3>
-                <h4>B2b1</h4>
+                <h1>Documentação</h1>
+
+                <h2>Base</h2>
+
+                <h3>Verificação de string vazia</h3>
+                <p class="line">
+                    <code>
+                        <span class="keyword">function</span>
+                        <span class="function">emptystr</span>(<span class="parameter">string</span>:
+                        <span class="type">string</span>):
+                        <span class="type">boolean</span>
+                    </code>
+                </p>
+                <p>Verifica se uma string está vazia, excluindo espaços em branco.</p>
+
+                <h3>Validação de string</h3>
+                <p class="line">
+                    <code>
+                        <span class="keyword">function</span>
+                        <span class="function">validstr</span>(<span class="parameter">value</span>:
+                        <span class="type">any</span>,
+                        ...<span class="parameter">filters</span>:
+                        <span class="type2">Filter</span>[]):
+                        <span class="type">boolean</span>
+                    </code>
+                </p>
+                <p>Verifica se um valor é válido a ser convertido em string.</p>
+                <p>Filtros disponíveis:</p>
+                <ul>
+                    <li><code>blockEmpty</code></li>
+                    <li><code>blockArrays</code></li>
+                    <li><code>blockBooleans</code></li>
+                    <li><code>blockNumbers</code></li>
+                    <li><code>onlyAlphaNumeric</code></li>
+                </ul>
+
+                <h3>Marca de tempo</h3>
+                
+                <h2>Área de Trabalho</h2>
+                <p class="line">
+                    <code>
+                        <span class=keyword>namespace</span> 
+                        <span class=namespace>Namespace</span>
+                    </code>
+                </p>
+                <p class="line">
+                    <code>
+                        <span class=keyword>function</span>
+                        <span class=function>Namespace</span>(<span class=parameter>object</span>:
+                        <span class=type>object</span>,
+                        <span class=parameter>name</span>:
+                        <span class=type>string</span>):
+                        <span class=type>object</span>
+                    </code>
+                </p>
+
+                <p>Define um objeto como área de trabalho.</p>
+
+                <h3>Verificando um Namespace</h3>
+
+                <p class="line">
+                    <code>
+                        <span class="keyword">static</span>
+                        <span class="keyword">method</span>
+                        <span class="namespace">Namespace</span>.<span class="function">isNamespace</span>(<span class="parameter">object</span>:
+                        <span class="type">object</span>):
+                        <span class="type">boolean</span>
+                    </code>
+                </p>
+
+                <p>Retorna <code>true</code> se um objeto for previamente declarado como área de trabalho, caso contrário, retorna <code>false</code>.</p>
+                
+                <h2>Controle de Propriedades</h2>
+
+                <h2>Ferramentas NodeJS</h2>
+
+                <h3>Controle de Servidor HTTP</h3>
+                <p class="line">
+                    <code>
+                        <span class="keyword">class</span>
+                        <span class="class">ServerManager</span>
+                        <span class="keyword">extends</span>
+                        <span class="namespace">http</span>.<span class="extends">Server</span>
+                    </code>
+                </p>
+
+                <h4>Lista de páginas</h4>
+                <p class="line">
+                    <code>
+                        <span class="keyword">property</span>
+                        <span class="class">ServerManager</span>.<span class="property">pages</span>:
+                        <span class="class">PageCollection</span>
+                    </code>
+                </p>
+
+                <h4>Lista de sessões</h4>
+                <p class="line">
+                    <code>
+                        <span class="keyword">property</span>
+                        <span class="class">ServerManager</span>.<span class="property">sessions</span>:
+                        <span class="class">SessionCollection</span>
+                    </code>
+                </p>
+
+                <h4>Adicionar páginas</h4>
+                <p>Páginas podem ser adicionadas dinamicamente de duas maneiras.</p>
+                <p><b>Carregando um diretório:</b></p>
+                <p class="line">
+                    <code>
+                        <span class="keyword">method</span>
+                        <span class="class">ServerManager</span>.<span class="function">openPageDir</span>(<span class="parameter">dirpath</span>:
+                        <span class="type">string</span>,
+                        <span class="parameter">pathbase</span>:
+                        <span class="type">string</span>):
+                        <span class="type">void</span>
+                    </code>
+                </p>
+                <p>Onde <code class="parameter">dirpath</code> é a localização do diretório que será lido, e <code class="parameter">pathbase</code> é o caminho relativo base para ser inserido antes do nome dos arquivos do diretório.</p>
+                <p><b>Carregando uma lista:</b></p>
+                <p class="line">
+                    <code>
+                        <span class="keyword">method</span>
+                        <span class="class">ServerManager</span>.<span class="function">openPageList</span>(<span class="parameter">array</span>:
+                        <span class="type2">PageListObject</span>[],
+                        <span class="parameter">path</span>:
+                        <span class="type">string</span>):
+                        <span class="type">void</span>
+                    </code>
+                </p>
+                <p>Onde <code class="parameter">array</code> é a lista de objetos que representam páginas, e <code class="parameter">path</code> é o caminho de origem onde os arquivos da lista serão procurados.</p>
+
+                <h4>Abrir WebSocket simultaneamente</h4>
+                <p class="line">
+                    <code>
+                        <span class="keyword">method</span>
+                        <span class="class">ServerManager</span>.<span class="function">openWebSocket</span>(<span class="parameter">path</span>?:
+                        <span class="type2">string</span>):
+                        <span class="type">void</span>
+                    </code>
+                </p>
+                <p>Abre uma conexão WebSocket compartilhando o mesmo hostname e porta do servidor.</p>
+                <p>Utiliza a biblioteca <code>ws</code></p>
+
+                <h4>APIs</h4>
+                <p class="line">
+                    <code>
+                        <span class="keyword">method</span>
+                        <span class="class">ServerManager</span>.<span class="function">setAPI</span>(<span class="parameter">name</span>:
+                        <span class="type2">string</span>,
+                        <span class="parameter">api</span>:
+                        <span class="type">object</span>):
+                        <span class="type">void</span>
+                    </code>
+                </p>
+                <p>Define um objeto para ser reutilizado por qualquer página.</p>
+
+                <h3>Página Web</h3>
+                <p class="line">
+                    <code>
+                        <span class="keyword">class</span>
+                        <span class="class">Page</span>
+                    </code>
+                </p>
+
+                <h4>Construtor</h4>
+                <p class="line">
+                    <code>
+                        <span class="keyword">method</span>
+                        <span class="class">Page</span>.<span class="keyword">constructor</span>(<span class="parameter"></span>:
+                        
+                        )
+                    </code>
+                </p>
+                
+                <h2></h2>
             </section>
             <script>
                 const content = document.getElementById("content");

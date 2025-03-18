@@ -1,0 +1,54 @@
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+code {
+    font-family: Consolas;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 4px;
+    border-radius: 4px;
+    color: white;
+}
+
+p.line {
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.keyword {
+    color: rgb(235, 67, 235)
+}
+.function {
+    color: deepskyblue;
+}
+.class {
+    color: yellow
+}
+.namespace, .type2 {
+    color: gold
+}
+.parameter {
+    color: mediumseagreen
+}
+.type {
+    color: cornflowerblue
+}
+.extends {
+    color: chartreuse;
+    text-decoration: underline;
+    font-style: italic;
+}
+.property {
+    color: rgb(255, 85, 70)
+}
+
+h1 { text-indent: 1rem; }
+h2 { text-indent: 2rem; }
+h3 { text-indent: 3rem; }
+h4 { text-indent: 4rem; }
+h5 { text-indent: 5rem; }
+h6 { text-indent: 6rem; }
+
+h1,h2,h3,h4,h5,h6 {
+    text-decoration: underline;
+}

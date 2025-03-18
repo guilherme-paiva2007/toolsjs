@@ -29,12 +29,6 @@ var Session = ( function() {
 
             if (!(response instanceof http.ServerResponse)) throw new TypeError("Sessions can only be created with a response object");
 
-            try {
-                response.setHeader("Set-Cookie", `${collection.cookiekeyname}=${this.id}; Path=/; HttpOnly`);
-            } catch(err) {
-                console.error(`Erro ao criar sessão: ${err?.message}`);
-            }
-
             do {
                 this.id = crypto.randomBytes(8).toString("hex");
             } while (collection.has(this.id));
@@ -42,6 +36,12 @@ var Session = ( function() {
             collection.insert(this);
 
             Property.set(this, "id", "freeze", "lock");
+
+            try {
+                response.setHeader("Set-Cookie", `${collection.cookieKeyName}=${this.id}; Path=/; HttpOnly`);
+            } catch(err) {
+                console.error(`Erro ao criar sessão: ${err?.message}`);
+            }
         }
 
         id;
