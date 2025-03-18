@@ -1,3 +1,7 @@
+process.on("uncaughtException", exception => {
+    console.error(exception);
+});
+
 const path = require("path");
 const ServerManager = require("./src/node/server.js");
 const config = require("./config.json");
@@ -19,7 +23,41 @@ server.openPageList([
     {
         filelocation: "/page3.html",
         pagelocation: "/page3"
+    },
+    {
+        filelocation: "/websocket.html",
+        pagelocation: [ "ws", "websocket" ]
+    },
+    {
+        filelocation: "/docs.html",
+        pagelocation: "docs",
+        events: {
+            before: [
+                () => { console.log("Test1") },
+                () => { console.log("Test2") }
+            ]
+        }
+    },
+    {
+        filelocation: "/ex.js",
+        pagelocation: "execute",
+        pagetype: "execute",
+        events: {
+            before({ localhooks }) {
+                localhooks.abc = 123;
+            }
+        }
     }
 ], path.join(__dirname, "pages"));
 
+server.openPageDir("./assets/css/", "/css/");
+
 server.listen(config?.port, config?.hostname);
+server.on("listening", () => {
+    console.log(`HTTP Server listening at ${config.port}`);
+});
+
+const wss = server.openWebSocket();
+wss.on("listening", () => {
+    console.log(`WebSocket Server listening at ${config.port}`);
+});

@@ -16,7 +16,13 @@ interface PageLoadParameters {
     page: Page
     request: IncomingMessage
     response: ServerResponse
-    apis?: object
+    localhooks: object
+    apis?: ServerAPIObjects
+}
+
+interface PageEvents {
+    before: ( ( parameters: PageLoadParameters, apis: ServerAPIObjects ) => void ) | ( ( parameters: PageLoadParameters, apis: ServerAPIObjects ) => void )[]
+    after: ( ( parameters: PageLoadParameters, apis: ServerAPIObjects ) => void ) | ( ( parameters: PageLoadParameters, apis: ServerAPIObjects ) => void )[]
 }
 
 interface PageListObject {
@@ -27,8 +33,11 @@ interface PageListObject {
     statuscode?: number,
     excludeExtFromName?: boolean
     flags?: string[]
-    urltype: URLType
+    urltype: URLType,
+    events?: PageEvents
 }
+
+interface ServerAPIObjects {}
 
 interface PageBasicOptions {
     /**
@@ -39,6 +48,10 @@ interface PageBasicOptions {
      * Lista de Flags da página.
      */
     flags?: symbol[]
+    /**
+     * Lista de eventos de execução da página.
+     */
+    events: PageEvents
 }
 
 declare type Flags = {
@@ -73,7 +86,7 @@ declare class Page {
      * Carrega o conteúdo da página de acordo com o que foi definido em `pagetype`.
      * @param parameters Parâmetros fornecidos para execução. Páginas de hipertexto necessitam de um `PageContent`.
      */
-    load(parameters: PageLoadParameters): Promise<any>
+    load(parameters: PageLoadParameters, apis: ServerAPIObjects): Promise<any>
 
     /**
      * Testa se um caminho de URL bate com a localização da página.

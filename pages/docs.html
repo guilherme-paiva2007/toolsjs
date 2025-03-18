@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Documentation</title>
+        <link rel="stylesheet" href="/css/docs.css">
+    </head>
+    <body>
+        <header>
+
+        </header>
+        <main>
+            <aside id="summary">
+
+            </aside>
+            <section id="content">
+                <h1>A</h1>
+                <h2>A1</h2>
+                <h2>A2</h2>
+                <h2>A3</h2>
+                <h1>B</h1>
+                <h2>B1</h2>
+                <h2>B2</h2>
+                <h3>B2a</h3>
+                <h3>B2b</h3>
+                <h4>B2b1</h4>
+            </section>
+            <script>
+                const content = document.getElementById("content");
+                const summary = document.getElementById("summary");
+
+                for (const child of content.children) {
+                    summary.append(child.tagName);
+                }
+            </script>
+        </main>
+        <footer>
+
+        </footer>
+    </body>
+</html>

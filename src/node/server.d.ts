@@ -1,5 +1,5 @@
 import http, { IncomingMessage, ServerOptions, ServerResponse } from "http"
-import WebSocket, { WebSocketServer } from "ws"
+import WebSocket, { } from "ws"
 import net from "net"
 import Page from "./page"
 
@@ -23,6 +23,8 @@ declare class ServerManager<Req extends typeof IncomingMessage = typeof Incoming
     openPageDir(dirpath: string, pathbase: string): void
 
     openPageList(array: Page.PageListObject, path: string): void
+
+    openWebSocket(path?: string): WebSocket.Server
 }
 
 export = ServerManager

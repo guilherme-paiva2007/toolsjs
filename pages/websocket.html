@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WebSocket</title>
+    </head>
+    <body>
+        <script>
+            const ws = new WebSocket(`ws://${location.hostname}:${location.port}/`);
+            ws.addEventListener("error", (event) => {
+                console.log(event);
+            });
+            window.ws = ws;
+        </script>
+        <div>
+            <label for="">Message: </label>
+            <input type="text" id="ws-input"><br>
+            <button id="ws-button">Send</button>
+            <script>
+                const wsInput = document.getElementById("ws-input");
+                const wsButton = document.getElementById("ws-button");
+
+                wsButton.addEventListener("click", () => {
+                    ws.send(wsInput.value);
+                    console.log(wsInput.value);
+                });
+            </script>
+        </div>
+    </body>
+</html>

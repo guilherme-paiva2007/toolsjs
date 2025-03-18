@@ -62,12 +62,12 @@ var Page = ( function() {
     const privateCollectionMaps = new WeakMap();
 
     const Page = class Page {
-        constructor(filelocation, pagelocation, pageType = "hypertext", contentType, { statusCode, flags } = {}) {
+        constructor(filelocation, pagelocation, pageType = "hypertext", contentType, { statusCode, flags, events } = {}) {
             if (typeof filelocation !== "string") throw new TypeError("File location must be a string");
             if (typeof pagelocation !== "string") throw new TypeError("Page location must be a string");
             if (!pageTypes.includes(pageType)) throw new TypeError("Page type must be either 'hypertext' or 'execute'");
 
-            const parsedLocation = path.parse(pagelocation);
+            const parsedLocation = path.parse(filelocation);
 
             if (!contentType) contentType = defaultContentTypesForEXT[parsedLocation.ext];
             if (!contentTypes.includes(contentType)) contentType = "text/plain";
@@ -101,6 +101,26 @@ var Page = ( function() {
                 }
             }
 
+            if (events) {
+                if (!(flags instanceof Object)) throw new TypeError("Events must be an object");
+                let eventsbefore = events.before;
+                let eventsafter = events.after;
+                if (events.before) {
+                    if (typeof eventsbefore === "function") eventsbefore = [ eventsbefore ];
+                    for (const event of eventsbefore) {
+                        if (typeof event !== "function") throw new TypeError("events.before event must be a callback or a callback array");
+                        this.events.before.push(event);
+                    }
+                }
+                if (events.after) {
+                    if (typeof eventsafter === "function") eventsafter = [ eventsafter ];
+                    for (const event of eventsafter) {
+                        if (typeof event !== "function") throw new TypeError("events.after event must be a callback or a callback array");
+                        this.events.after.push(event);
+                    }
+                }
+            }
+
             Property.set(this, "filename", "freeze", "lock");
             Property.set(this, "filelocation", "freeze", "lock");
             Property.set(this, "path", "freeze", "lock");
@@ -109,6 +129,8 @@ var Page = ( function() {
             Property.set(this, "statusCode", "freeze", "lock");
             Property.set(this, "flags", "freeze", "lock");
             Object.freeze(this.flags);
+            Property.set(this, "events", "freeze", "lock");
+            Object.freeze(this.events);
             Property.set(this, "_valid", "hide", "freeze", "lock");
         }
 
@@ -119,10 +141,24 @@ var Page = ( function() {
         statusCode;
         pageType;
         flags = [];
+        events = {
+            before: [],
+            after: []
+        };
 
         _valid = true;
 
-        async load({ query, body, params, session, server, content, page, request, response } = { }, apis = {}) {
+        async load({ query, body, params, session, server, content, page, request, response, localhooks } = { }, apis = {}) {
+            if (this.events.before) {
+                try {
+                    await this.events.before.forEach(async event => {
+                        await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
             if (this.contentType === "text/html") {
                 const clientObjectsJSON = [];
                 if (this.flags.includes(Page.Flags.HTMLClientParams)) {
@@ -146,16 +182,26 @@ var Page = ( function() {
                     case "hypertext":
                         const data = await fs.promises.readFile(this.filelocation);
                         content.append(data);
-                        return data.length;
+                        return data;
                     case "execute":
                         delete require.cache[require.resolve(this.filelocation)];
                         const execute = require(this.filelocation);
-                        return await execute({ query, body, params, session, server, content, page, request, response }, apis);
+                        const result = await execute({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                        if (result) content.append(result); 
+                        return result;
                 }
             } catch(err) {
                 content.clear();
                 content.append(`${err}`);
                 console.error(`Error on loading page ${this.path}`, err);
+            }
+
+            if (this.events.after) {
+                try {
+                    await this.events.after({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                } catch (err) {
+                    console.error(err);
+                }
             }
         }
 
@@ -250,6 +296,7 @@ var Page = ( function() {
                 let pagetype = pageobj.pagetype ?? "hypertext";
                 let contenttype = pageobj.contenttype;
                 let statuscode = pageobj.statuscode;
+                let events = pageobj.events;
 
                 let flags = [];
                 const pageobjflags = pageobj.flags ? pageobj.flags.filter(fl => typeof fl === "string" ? true : false).map(fl => fl.toLowerCase()) : [];
@@ -263,7 +310,7 @@ var Page = ( function() {
                         pl,
                         pagetype,
                         contenttype,
-                        { statuscode, flags }
+                        { statuscode, flags, events }
                     ));
                 });
                 index++;

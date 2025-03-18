@@ -1,10 +1,9 @@
 import { IncomingMessage, ServerResponse } from "http";
 
 declare class Session extends Map<any, any> {
-    constructor(response: ServerResponse, collection?: SessionCollection)
+    constructor(request:IncomingMessage, response: ServerResponse, collection?: SessionCollection)
 
     readonly id: string
-    readonly collection: SessionCollection
     lastUse: number
 
     /**

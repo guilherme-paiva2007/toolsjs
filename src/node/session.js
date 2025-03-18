@@ -35,12 +35,16 @@ var Session = ( function() {
                 console.error(`Erro ao criar sessão: ${err?.message}`);
             }
 
+            do {
+                this.id = crypto.randomBytes(8).toString("hex");
+            } while (collection.has(this.id));
+
+            collection.insert(this);
+
             Property.set(this, "id", "freeze", "lock");
-            Property.set(this, "collection", "freeze", "lock");
         }
 
-        id = crypto.randomBytes(8);
-        collection;
+        id;
 
         get lastUse() { return privateLastUses.get(this); }
 
@@ -71,6 +75,9 @@ var Session = ( function() {
                 });
 
                 if (cleaningInterval && maxAge) this.setCleaningInterval();
+
+                Property.set(this, "name", "freeze", "lock");
+                Property.set(this, "id", "freeze", "lock");
             }
 
             name;

@@ -3,15 +3,10 @@ const Page = require("./page.js");
 const Session = require("./session");
 const url = require("url");
 const Cookie = require("../util/cookie.js");
+const ws = require("ws");
 
 var ServerManager = ( function() {
-    function useWebSocket() {
-        try {
-            require("ws");
-        } catch {
-            return null
-        }
-    }
+    
 
     const ServerManager = class ServerManager extends http.Server {
         constructor(options) {
@@ -27,8 +22,7 @@ var ServerManager = ( function() {
                     sublines: []
                 };
 
-                // const session = Session.create(request, response, this.sessions);
-                let session;
+                const session = new Session(request, response, this.sessions);
 
                 const parsedUrl = url.parse(request.url);
                 const pathname = parsedUrl.pathname;
@@ -63,10 +57,13 @@ var ServerManager = ( function() {
 
                 const content = new Page.Content();
 
+                const localhooks = {};
+
                 if (page) {
                     response.setHeader("Content-Type", page.contentType);
+                    if (page.statusCode) response.statusCode = page.statusCode;
 
-                    const load = page.load({ query, body, params, content, page, request, response, server: this, session }, this.APIObjects);
+                    const load = page.load({ query, body, params, content, page, request, response, server: this, session, localhooks }, this.APIObjects);
 
                     collectingContentPromises.push(load);
                 } else {
@@ -105,6 +102,10 @@ var ServerManager = ( function() {
 
         openPageList(array, path) {
             Page.LoadList(array, this.pages, path);
+        }
+
+        openWebSocket(path = "/") {
+            return new ws.Server({ server: this, path });
         }
     }
 

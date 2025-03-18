@@ -1,3 +1,5 @@
+const fs = require("fs");
+if (fs.existsSync("./assets/src/")) fs.rmSync("./assets/src/", { recursive: true, force: true });
 require("./compile.js")({
     webmodules: "./assets/src/",
     webraw: "./assets/scripts.js"
@@ -5,6 +7,7 @@ require("./compile.js")({
 
 const emptystr = require("./src/base/string_empty.js");
 const validstr = require("./src/base/string_valid.js");
+const timestamp = require("./src/base/timestamp.js");
 
 const Namespace = require("./src/namespace.js");
 const Property = require("./src/property.js");
@@ -25,10 +28,8 @@ const LogicalError = require("./src/errors/logicalerror.js");
 const OptionError = require("./src/errors/optionerror.js");
 
 const Cookie = require("./src/util/cookie.js");
-const ID = require("./src/util/id.js");
 const Color = require("./src/util/color.js");
 const ConsoleStyle = require("./src/util/consolestyle.js");
-const Time = require("./src/util/time.js");
 
 const Page = require("./src/node/page.js");
 const Session = require("./src/node/session.js");
@@ -39,6 +40,7 @@ const Compatibility = require("./src/client/compatibility.js");
 module.exports = {
     emptystr,
     validstr,
+    timestamp,
     Namespace,
     Property,
     LinkedList,
@@ -55,10 +57,8 @@ module.exports = {
     LogicalError,
     OptionError,
     Cookie,
-    ID,
     Color,
     ConsoleStyle,
-    Time,
     Page,
     Session,
     ServerManager,

@@ -124,8 +124,9 @@ var LinkedList = ( function() {
 
             let last = nodeBeforeIndex;
             let nextNode = nodeBeforeIndex?.next;
+            let thisNodeType = (createCustomNode(this.constructor.name));
             for (const value of values) {
-                const node = new (createCustomNode(this.constructor.name))(value, { next: nextNode, last: last });
+                const node = new thisNodeType(value, { next: nextNode, last: last });
                 if (!last) privateFields.first = node;
                 last = node;
             }
