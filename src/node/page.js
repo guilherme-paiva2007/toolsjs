@@ -356,7 +356,6 @@ var Page = ( function() {
             collection.append(...pages);
 
             if (syncChanges) {
-                console.log("sync");
                 const watcher = chokidar.watch(dirpath, { persistent: true, ignoreInitial: true });
 
                 watcher.on("add", newpath => {
