@@ -84,3 +84,11 @@ wss.on("listening", () => {
 wss.on("connection", socket => {
     socket.on("message", message => console.log("Message from WebSocket client:", message.toString("utf-8")))
 });
+
+process.stdin.on("data", data => {
+    data = data.toString().replace("\r\n", "").trim();
+
+    if (data === "pages") {
+        console.table([...server.pages.values()].map(p => [p.filename, p.path]));
+    }
+});
