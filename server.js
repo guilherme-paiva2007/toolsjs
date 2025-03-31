@@ -5,6 +5,7 @@ process.on("uncaughtException", exception => {
 const path = require("path");
 const ServerManager = require("./src/node/server.js");
 const config = require("./config.json");
+const Component = require( "./src/node/component.js" );
 
 const server = new ServerManager();
 
@@ -84,3 +85,8 @@ wss.on("listening", () => {
 wss.on("connection", socket => {
     socket.on("message", message => console.log("Message from WebSocket client:", message.toString("utf-8")))
 });
+
+server.components.add(
+    new Component("test1", path.resolve(__dirname, "./pages/components/testcomp.html")),
+    new Component("test2", path.resolve(__dirname, "./pages/components/testexec.js"), "execute")
+);
