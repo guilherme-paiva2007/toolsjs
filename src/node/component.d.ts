@@ -36,6 +36,14 @@ declare class ComponentCollection {
      * @param html
      */
     load(html: string): Promise<string>
+
+    keys(): Iterator<string>
+
+    values(): Iterator<Component>
+
+    entries(): Iterator<[string, Component]>
+
+    get length(): number
 }
 
 declare namespace Component {

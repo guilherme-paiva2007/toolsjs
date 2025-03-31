@@ -112,6 +112,26 @@ var Component = ( function() {
 
             return await replaceComponents(html, components);
         }
+
+        *keys() {
+            yield* privateCompCollections.get(this).keys();
+        }
+
+        *values() {
+            yield* privateCompCollections.get(this).values();
+        }
+
+        *entries() {
+            yield* privateCompCollections.get(this).entries();
+        }
+
+        get length() {
+            return privateCompCollections.get(this).size;
+        }
+
+        *[Symbol.iterator]() {
+            yield* this.entries();
+        }
     }
 
     Component.Collection = ComponentCollection;
