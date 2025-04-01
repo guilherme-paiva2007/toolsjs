@@ -1,0 +1,1 @@
+// Erro especial que, ao ser lançado, é capaz de parar o servidor.
