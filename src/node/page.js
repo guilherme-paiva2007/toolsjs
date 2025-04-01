@@ -549,6 +549,8 @@ var Page = ( function() {
     Object.freeze(Page.Flags);
     Property.set(Page, "Flags", "freeze", "lock");
 
+    Page.MapDir.watchers = chokidarWatchers;
+
     return Page;
 } )();
 
