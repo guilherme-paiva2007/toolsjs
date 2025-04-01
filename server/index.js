@@ -1,7 +1,7 @@
 const { ServerManager } = require("../src/");
 const loadPages = require("./pages_load.js");
 
-const server = new ServerManager();
+const server = new ServerManager({ componentRequests: true });
 
 loadPages(server);
 

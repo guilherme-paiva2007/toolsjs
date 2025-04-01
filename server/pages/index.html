@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <label for="">Componente: </label>
+        <input type="text" id="component_name"><br>
+        <label for="">Parametros</label>
+        <textarea id="component_parameters"></textarea><br>
+        <button id="component_get">Obter</button><br>
+        <script type="module">
+            const button = document.getElementById("component_get");
+            const input = document.getElementById("component_name");
+            const textarea = document.getElementById("component_parameters");
+            import component from "/assets/component.js";
+
+            button.addEventListener("click", () => {
+                console.log(component(
+                    input.value,
+                    Object.fromEntries(textarea.value.split("\n").map(line => {
+                        return line.split("=").slice(0, 2);
+                    }))
+                ));
+            });
+        </script>
+    </body>
+</html>
