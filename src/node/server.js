@@ -119,10 +119,6 @@ var ServerManager = ( function() {
         openWebSocket(path = "/") {
             return new ws.Server({ server: this, path });
         }
-
-        clearCache() {
-            
-        }
     }
 
     return ServerManager;

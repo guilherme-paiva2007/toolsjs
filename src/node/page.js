@@ -87,14 +87,18 @@ var Page = ( function() {
             if (pagesCache.has(page)) return pagesCache.get(page);
         }
         delete require.cache[require.resolve(page.filelocation)];
-        return require(page.filelocation);
+        const execute = require(page.filelocation);
+        pagesCache.set(page, execute);
+        return execute;
     }
 
     async function openFS(page, cache) {
         if (cache) {
             if (pagesCache.has(page)) return pagesCache.get(page);
         }
-        return await fs.promises.readFile(page.filelocation);
+        const data = await fs.promises.readFile(page.filelocation);
+        pagesCache.set(page, data);
+        return data;
     }
 
 
@@ -237,7 +241,6 @@ var Page = ( function() {
                         }
                         content.append(data);
                         toReturn = data;
-                        pagesCache.set(page, data);
                         break;
                     case "execute":
                         // delete require.cache[require.resolve(this.filelocation)];
@@ -245,7 +248,6 @@ var Page = ( function() {
                         const result = await execute({ query, body, params, session, server, content, page, request, response, components, localhooks }, apis);
                         if (result) content.append(result); 
                         toReturn = result;
-                        pagesCache.set(page, result);
                         break;
                 }
             } catch(err) {
