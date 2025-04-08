@@ -97,6 +97,7 @@ var ServerManager = ( function() {
 
 
             if (options) super(options, requestHandler); else super(requestHandler);
+            this.cacheContent = Boolean(options.cacheContent);
         }
 
         pages = new Page.Collection();
@@ -119,6 +120,10 @@ var ServerManager = ( function() {
 
         openWebSocket(path = "/") {
             return new ws.Server({ server: this, path });
+        }
+
+        clearCache() {
+            
         }
     }
 

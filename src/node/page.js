@@ -65,6 +65,40 @@ var Page = ( function() {
     /** @type {Map<string, chokidar.FSWatcher>} */
     const chokidarWatchers = new Map();
 
+    // Se retornar true, para o load
+    function callEvent(eventName, page, ...parameters) {
+        let stop = false;
+        for (const listener of page.events[eventName]) {
+            try {
+                const result = listener(...parameters);
+                if (eventName === "error") stop = result;
+            } catch (err) {
+                if (eventName === "error") throw err;
+                stop = callEvent("error", page, ...parameters, err);
+            }
+        }
+        return stop;
+    }
+
+    const pagesCache = new Map();
+
+    function openExecute(page, cache = true) {
+        if (cache) {
+            if (pagesCache.has(page)) return pagesCache.get(page);
+        }
+        delete require.cache[require.resolve(page.filelocation)];
+        return require(page.filelocation);
+    }
+
+    async function openFS(page, cache) {
+        if (cache) {
+            if (pagesCache.has(page)) return pagesCache.get(page);
+        }
+        return await fs.promises.readFile(page.filelocation);
+    }
+
+
+
     const Page = class Page {
         constructor(filelocation, pagelocation, pageType = "hypertext", contentType, { statusCode, flags, events } = {}) {
             if (typeof filelocation !== "string") throw new TypeError("File location must be a string");
@@ -123,6 +157,14 @@ var Page = ( function() {
                         this.events.after.push(event);
                     }
                 }
+                if (events.error) {
+                    let eventserror = events.error;
+                    if (typeof eventserror === "function") eventserror = [eventserror];
+                    for (const event of eventserror) {
+                        if (typeof event !== "function") throw new TypeError("events.error event must be a callback or a callback array");
+                        this.events.error.push(event);
+                    }
+                }
             }
 
             Property.set(this, "filename", "freeze", "lock");
@@ -147,21 +189,24 @@ var Page = ( function() {
         flags = [];
         events = {
             before: [],
-            after: []
+            after: [],
+            error: []
         };
 
         _valid = true;
 
         async load({ query, body, params, session, server, content, page, request, response, components, localhooks } = { }, apis = {}) {
-            if (this.events.before) {
-                try {
-                    await this.events.before.forEach(async event => {
-                        await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
-                    });
-                } catch (err) {
-                    console.error(err);
-                }
-            }
+            // if (this.events.before) {
+            //     try {
+            //         await this.events.before.forEach(async event => {
+            //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+            //         });
+            //     } catch (err) {
+            //         console.error(err);
+            //     }
+            // }
+
+            if (callEvent("before", page, { query, body, params, session, server, content, page, request, response, localhooks }, apis)) return;
 
             if (this.contentType === "text/html") {
                 const clientObjectsJSON = [];
@@ -186,36 +231,41 @@ var Page = ( function() {
                 switch (this.pageType) {
                     default:
                     case "hypertext":
-                        let data = await fs.promises.readFile(this.filelocation);
+                        let data = await openFS(page, server?.cacheContent) //fs.promises.readFile(this.filelocation);
                         if (page?.contentType === "text/html") {
                             data = await components?.load(data.toString("utf-8"), { query, body, params, session, server, content, page, request, response, components, localhooks, apis });
                         }
                         content.append(data);
                         toReturn = data;
+                        pagesCache.set(page, data);
                         break;
                     case "execute":
-                        delete require.cache[require.resolve(this.filelocation)];
-                        const execute = require(this.filelocation);
+                        // delete require.cache[require.resolve(this.filelocation)];
+                        const execute = openExecute(page, server?.cacheContent)//require(this.filelocation);
                         const result = await execute({ query, body, params, session, server, content, page, request, response, components, localhooks }, apis);
                         if (result) content.append(result); 
                         toReturn = result;
+                        pagesCache.set(page, result);
                         break;
                 }
             } catch(err) {
                 content.clear();
                 content.append(`${err}`);
                 console.error(`Error on loading page ${this.path}`, err);
+                if (callEvent("error", page, { query, body, params, session, server, content, page, request, response, components, localhooks }, apis)) return;
             }
 
-            if (this.events.after) {
-                try {
-                    await this.events.after.forEach(async event => {
-                        await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
-                    });
-                } catch (err) {
-                    console.error(err);
-                }
-            }
+            // if (this.events.after) {
+            //     try {
+            //         await this.events.after.forEach(async event => {
+            //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+            //         });
+            //     } catch (err) {
+            //         console.error(err);
+            //     }
+            // }
+
+            if (callEvent("after", page, { query, body, params, session, server, content, page, request, response, localhooks }, apis)) return;
 
             return toReturn;
         }
@@ -389,6 +439,10 @@ var Page = ( function() {
 
                 chokidarWatchers.set(dirpath, watcher);
             }
+        }
+
+        static clearCache() {
+            pagesCache.clear();
         }
 
         static Content = class PageContent {

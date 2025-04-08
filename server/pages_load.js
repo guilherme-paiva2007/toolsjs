@@ -1,12 +1,15 @@
 const path = require("path");
 
 const Component = require( "../src/node/component" );
+const { Page } = require( "../src/index.js" );
 
 /**
  * 
  * @param {import("../src/node/server.js")} server 
  */
 module.exports = function loadPages(server) {
+    Page.clearCache();
+
     server.pages.clear();
 
     delete require.cache[require.resolve("./pages_list.js")];
