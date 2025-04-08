@@ -24,6 +24,14 @@ module.exports = {
         {
             filelocation: "index.html",
             pagelocation: [ "/", "/index", "/main", "/home" ]
+        },
+        {
+            filelocation: "index.html",
+            pagelocation: "err",
+            events: {
+                before: require("./events/throw.js"),
+                error: require("./events/error.js")
+            }
         }
     ],
     components: [
