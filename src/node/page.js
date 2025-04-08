@@ -66,19 +66,21 @@ var Page = ( function() {
     const chokidarWatchers = new Map();
 
     // Se retornar true, para o load
-    function callEvent(eventName, page, ...parameters) {
-        let stop = false;
-        for (const listener of page.events[eventName]) {
-            try {
-                const result = listener(...parameters);
-                if (eventName === "error") stop = result;
-            } catch (err) {
-                if (eventName === "error") throw err;
-                stop = callEvent("error", page, ...parameters, err);
-            }
-        }
-        return stop;
-    }
+    // function callEvent(eventName, page, ...parameters) {
+    //     let stop = false;
+    //     for (const listener of page.events[eventName]) {
+    //         try {
+    //             const result = listener(...parameters);
+    //             if (eventName === "error") stop = result;
+    //         } catch (err) {
+    //             if (eventName === "error") throw err;
+    //             stop = callEvent("error", page, ...parameters, err);
+    //         }
+    //     }
+    //     return stop;
+    // }
+
+    
 
     const pagesCache = new Map();
 
@@ -144,7 +146,7 @@ var Page = ( function() {
             }
 
             if (events) {
-                if (!(flags instanceof Object)) throw new TypeError("Events must be an object");
+                if (!(events instanceof Object)) throw new TypeError("Events must be an object");
                 let eventsbefore = events.before;
                 let eventsafter = events.after;
                 if (events.before) {
@@ -200,38 +202,44 @@ var Page = ( function() {
         _valid = true;
 
         async load({ query, body, params, session, server, content, page, request, response, components, localhooks } = { }, apis = {}) {
-            // if (this.events.before) {
-            //     try {
-            //         await this.events.before.forEach(async event => {
-            //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
-            //         });
-            //     } catch (err) {
-            //         console.error(err);
-            //     }
-            // }
-
-            if (callEvent("before", page, { query, body, params, session, server, content, page, request, response, localhooks }, apis)) return;
-
-            if (this.contentType === "text/html") {
-                const clientObjectsJSON = [];
-                if (this.flags.includes(Page.Flags.HTMLClientParams)) {
-                    clientObjectsJSON.push(`window.PARAMS = ${JSON.stringify(params)};\n`);
-                }
-                if (this.flags.includes(Page.Flags.HTMLClientQuery)) {
-                    clientObjectsJSON.push(`window.QUERY = ${JSON.stringify(query)};\n`);
-                }
-                if (clientObjectsJSON.length > 0) {
-                    content.append("<script id=\"server_objects_append_script\">\n", "before");
-                    content.append(clientObjectsJSON.join(""), "before");
-                    content.append("const server_objects_append_script = document.getElementById(\"server_objects_append_script\");\n", "before");
-                    content.append("server_objects_append_script.parentElement.removeChild(server_objects_append_script);\n", "before");
-                    content.append("</script>\n", "before");
-                }
-            }
-
-            let toReturn;
-
             try {
+                
+                // if (this.events.before) {
+                //     try {
+                //         await this.events.before.forEach(async event => {
+                //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                //         });
+                //     } catch (err) {
+                //         console.error(err);
+                //     }
+                // }
+    
+                if (this.events.before) {
+                    for (const before of this.events.before) {
+                        await before({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                    }
+                }
+    
+                if (this.contentType === "text/html") {
+                    const clientObjectsJSON = [];
+                    if (this.flags.includes(Page.Flags.HTMLClientParams)) {
+                        clientObjectsJSON.push(`window.PARAMS = ${JSON.stringify(params)};\n`);
+                    }
+                    if (this.flags.includes(Page.Flags.HTMLClientQuery)) {
+                        clientObjectsJSON.push(`window.QUERY = ${JSON.stringify(query)};\n`);
+                    }
+                    if (clientObjectsJSON.length > 0) {
+                        content.append("<script id=\"server_objects_append_script\">\n", "before");
+                        content.append(clientObjectsJSON.join(""), "before");
+                        content.append("const server_objects_append_script = document.getElementById(\"server_objects_append_script\");\n", "before");
+                        content.append("server_objects_append_script.parentElement.removeChild(server_objects_append_script);\n", "before");
+                        content.append("</script>\n", "before");
+                    }
+                }
+    
+                let toReturn;
+    
+                // try {
                 switch (this.pageType) {
                     default:
                     case "hypertext":
@@ -250,26 +258,40 @@ var Page = ( function() {
                         toReturn = result;
                         break;
                 }
-            } catch(err) {
-                content.clear();
-                content.append(`${err}`);
-                console.error(`Error on loading page ${this.path}`, err);
-                if (callEvent("error", page, { query, body, params, session, server, content, page, request, response, components, localhooks }, apis)) return;
+                // } catch(err) {
+                //     // content.clear();
+                //     content.append(`${err}`);
+                //     console.error(`Error on loading page ${this.path}`, err);
+                // }
+    
+                // if (this.events.after) {
+                //     try {
+                //         await this.events.after.forEach(async event => {
+                //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                //         });
+                //     } catch (err) {
+                //         console.error(err);
+                //     }
+                // }
+    
+                if (this.events.after) {
+                    for (const after of this.events.after) {
+                        await after({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
+                    }
+                }
+    
+                return toReturn;
+            } catch (err) {
+                if (this.events.error) {
+                    for (const errorEvent of this.events.error) {
+                        try {
+                            await errorEvent({ query, body, params, session, server, content, page, request, response, localhooks }, apis, err);
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+                }
             }
-
-            // if (this.events.after) {
-            //     try {
-            //         await this.events.after.forEach(async event => {
-            //             await event({ query, body, params, session, server, content, page, request, response, localhooks }, apis);
-            //         });
-            //     } catch (err) {
-            //         console.error(err);
-            //     }
-            // }
-
-            if (callEvent("after", page, { query, body, params, session, server, content, page, request, response, localhooks }, apis)) return;
-
-            return toReturn;
         }
 
         match(url) {
